@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { machineOperations, transactionOperations, revenueCalculations, errorHandler, Machine, Transaction } from './database'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, LineChart, Line } from 'recharts'
 
 export default function VendiPro() {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -13,7 +14,6 @@ export default function VendiPro() {
   const [editingMachineId, setEditingMachineId] = useState<number | null>(null)
   const [recordingSaleForMachine, setRecordingSaleForMachine] = useState<number | null>(null)
 
-  // Form states
   const [formData, setFormData] = useState({
     location: '',
     code: '',
@@ -28,7 +28,6 @@ export default function VendiPro() {
     description: ''
   })
 
-  // Load data on component mount
   useEffect(() => {
     loadData()
   }, [])
@@ -38,7 +37,6 @@ export default function VendiPro() {
     setError(null)
     
     try {
-      // Load machines
       const { data: machineData, error: machineError } = await machineOperations.getAll()
       
       if (machineError) {
@@ -53,7 +51,6 @@ export default function VendiPro() {
         await initializeSampleData()
       }
 
-      // Load transactions
       const { data: transactionData, error: transactionError } = await transactionOperations.getAll()
       if (transactionData) {
         setTransactions(transactionData)
@@ -146,14 +143,12 @@ export default function VendiPro() {
     
     try {
       if (machineId) {
-        // Update existing machine
         const { data, error } = await machineOperations.update(machineId, formData)
         if (error) {
           setError(errorHandler.formatError(error))
           return
         }
       } else {
-        // Create new machine
         const { data, error } = await machineOperations.create(formData)
         if (error) {
           setError(errorHandler.formatError(error))
@@ -161,7 +156,6 @@ export default function VendiPro() {
         }
       }
       
-      // Refresh data
       await loadData()
       resetForm()
     } catch (err) {
@@ -189,7 +183,6 @@ export default function VendiPro() {
         return
       }
       
-      // Refresh data to show updated revenue and new transaction
       await loadData()
       resetSaleForm()
     } catch (err) {
@@ -213,186 +206,6 @@ export default function VendiPro() {
     } catch (err) {
       setError('Failed to delete machine')
     }
-  }
-
-  function renderEditForm(machine: Machine) {
-    return (
-      <div className="bg-blue-50 p-6 rounded-lg mb-4 border-2 border-blue-200">
-        <h3 className="text-lg font-bold mb-4 text-blue-800">
-          Edit Machine: {machine.location}
-        </h3>
-        
-        <form onSubmit={(e) => handleSubmit(e, machine.id)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <input
-              type="text"
-              value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
-              required
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. Auckland Mall"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Machine Code</label>
-            <input
-              type="text"
-              value={formData.code}
-              onChange={(e) => setFormData({...formData, code: e.target.value})}
-              required
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. AKL001"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Partner</label>
-            <input
-              type="text"
-              value={formData.partner}
-              onChange={(e) => setFormData({...formData, partner: e.target.value})}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. Coca Cola, Pepsi, Independent, etc."
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Partner Split (%)</label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={formData.split}
-              onChange={(e) => setFormData({...formData, split: parseInt(e.target.value) || 0})}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. 70"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Current Revenue</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.revenue}
-              onChange={(e) => setFormData({...formData, revenue: parseFloat(e.target.value) || 0})}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. 2450.30"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">Status</label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({...formData, status: e.target.value})}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
-          </div>
-          
-          <div className="md:col-span-2 flex gap-4">
-            <button 
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-            >
-              Update Machine
-            </button>
-            <button 
-              type="button"
-              onClick={resetForm}
-              className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    )
-  }
-
-  function renderSaleForm(machine: Machine) {
-    const shares = revenueCalculations.calculateTransactionShares(saleData.amount || 0, machine.split)
-    
-    return (
-      <div className="bg-green-50 p-6 rounded-lg mb-4 border-2 border-green-200">
-        <h3 className="text-lg font-bold mb-4 text-green-800">
-          Record Sale: {machine.location}
-        </h3>
-        
-        <form onSubmit={handleRecordSale} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Sale Amount ($)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={saleData.amount}
-                onChange={(e) => setSaleData({...saleData, amount: parseFloat(e.target.value) || 0})}
-                required
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-green-500"
-                placeholder="e.g. 50.00"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">Description (Optional)</label>
-              <input
-                type="text"
-                value={saleData.description}
-                onChange={(e) => setSaleData({...saleData, description: e.target.value})}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-green-500"
-                placeholder="e.g. Daily collection, Maintenance sale"
-              />
-            </div>
-          </div>
-
-          {saleData.amount > 0 && (
-            <div className="bg-white p-4 rounded border grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <div className="text-gray-600">Your Share</div>
-                <div className="font-bold text-blue-600">${shares.yourShare.toFixed(2)}</div>
-              </div>
-              <div>
-                <div className="text-gray-600">Partner Share</div>
-                <div className="font-bold text-gray-600">${shares.partnerShare.toFixed(2)}</div>
-              </div>
-              <div>
-                <div className="text-gray-600">GST (15%)</div>
-                <div className="font-bold text-orange-600">${shares.gst.toFixed(2)}</div>
-              </div>
-              <div>
-                <div className="text-gray-600">Your Net</div>
-                <div className="font-bold text-green-600">${shares.yourShareAfterGST.toFixed(2)}</div>
-              </div>
-            </div>
-          )}
-          
-          <div className="flex gap-4">
-            <button 
-              type="submit"
-              className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-            >
-              Record Sale
-            </button>
-            <button 
-              type="button"
-              onClick={resetSaleForm}
-              className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    )
   }
 
   if (loading) {
@@ -427,13 +240,11 @@ export default function VendiPro() {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           
-          {/* Header */}
           <div className="bg-blue-600 text-white p-6">
             <h1 className="text-3xl font-bold">VendiPro</h1>
-            <p className="text-blue-100">Professional Vending Machine Management - Sales Recording System</p>
+            <p className="text-blue-100">Professional Vending Machine Management - Analytics Dashboard</p>
           </div>
 
-          {/* Navigation */}
           <div className="border-b bg-gray-50 p-4">
             <div className="flex gap-4">
               <button 
@@ -457,13 +268,11 @@ export default function VendiPro() {
             </div>
           </div>
 
-          {/* Content */}
           <div className="p-6">
             {activeTab === 'dashboard' && (
               <div>
                 <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
                 
-                {/* KPI Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-green-100 p-4 rounded-lg">
                     <h3 className="font-bold text-green-800">Total Revenue</h3>
@@ -483,7 +292,51 @@ export default function VendiPro() {
                   </div>
                 </div>
 
-                {/* Machine Overview */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  <div className="bg-white p-6 rounded-lg border">
+                    <h3 className="font-bold mb-4">Machine Revenue</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={machines.map(machine => ({
+                          name: machine.code,
+                          yourShare: revenueCalculations.calculateYourShare(machine.revenue, machine.split),
+                          partnerShare: revenueCalculations.calculatePartnerShare(machine.revenue, machine.split)
+                        }))}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
+                          <Bar dataKey="yourShare" fill="#3B82F6" name="Your Share" />
+                          <Bar dataKey="partnerShare" fill="#6B7280" name="Partner Share" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-lg border">
+                    <h3 className="font-bold mb-4">Revenue Split</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Your Income', value: totals.yourIncome, fill: '#3B82F6' },
+                              { name: 'Partner Income', value: totals.partnerIncome, fill: '#6B7280' },
+                              { name: 'GST Owed', value: totals.gstOwed, fill: '#F59E0B' }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            dataKey="value"
+                            label={({ name, value }) => `${name}: $${value.toFixed(0)}`}
+                          />
+                          <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-bold mb-4">Machine Performance</h3>
                   <div className="space-y-3">
@@ -512,7 +365,7 @@ export default function VendiPro() {
                 </div>
               </div>
             )}
-            
+
             {activeTab === 'machines' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
@@ -525,175 +378,33 @@ export default function VendiPro() {
                   </button>
                 </div>
 
-                {/* Add Form */}
-                {showAddForm && (
-                  <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                    <h3 className="text-lg font-bold mb-4">Add New Machine</h3>
-                    
-                    <form onSubmit={(e) => handleSubmit(e)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Location</label>
-                        <input
-                          type="text"
-                          value={formData.location}
-                          onChange={(e) => setFormData({...formData, location: e.target.value})}
-                          required
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g. Auckland Mall"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Machine Code</label>
-                        <input
-                          type="text"
-                          value={formData.code}
-                          onChange={(e) => setFormData({...formData, code: e.target.value})}
-                          required
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g. AKL001"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Partner</label>
-                        <input
-                          type="text"
-                          value={formData.partner}
-                          onChange={(e) => setFormData({...formData, partner: e.target.value})}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g. Coca Cola, Pepsi, Independent, etc."
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Partner Split (%)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={formData.split}
-                          onChange={(e) => setFormData({...formData, split: parseInt(e.target.value) || 0})}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g. 70"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Current Revenue</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={formData.revenue}
-                          onChange={(e) => setFormData({...formData, revenue: parseFloat(e.target.value) || 0})}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g. 2450.30"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Status</label>
-                        <select
-                          value={formData.status}
-                          onChange={(e) => setFormData({...formData, status: e.target.value})}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                          <option value="maintenance">Maintenance</option>
-                        </select>
-                      </div>
-                      
-                      <div className="md:col-span-2 flex gap-4">
-                        <button 
-                          type="submit"
-                          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-                        >
-                          Add Machine
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={resetForm}
-                          className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
-
-                {/* Machines List with Contextual Forms */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {machines.map(machine => (
-                    <div key={machine.id} className="space-y-4">
-                      {/* Edit Form */}
-                      {editingMachineId === machine.id && renderEditForm(machine)}
-                      
-                      {/* Sale Form */}
-                      {recordingSaleForMachine === machine.id && renderSaleForm(machine)}
-                      
-                      {/* Machine Card */}
-                      <div className="border rounded-lg p-6 bg-gray-50">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="text-xl font-bold">{machine.location}</h3>
-                            <p className="text-gray-600">Code: {machine.code}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => startRecordSale(machine)}
-                              className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                            >
-                              Record Sale
-                            </button>
-                            <button 
-                              onClick={() => startEdit(machine)}
-                              className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                            >
-                              Edit
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(machine)}
-                              className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                            >
-                              Delete
-                            </button>
-                          </div>
+                    <div key={machine.id} className="border rounded-lg p-6 bg-gray-50">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-bold">{machine.location}</h3>
+                          <p className="text-gray-600">Code: {machine.code}</p>
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-gray-600">Total Revenue</p>
-                            <p className="font-bold text-green-600 text-lg">${machine.revenue.toFixed(2)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-600">Your Share</p>
-                            <p className="font-bold text-blue-600 text-lg">
-                              ${revenueCalculations.calculateYourShare(machine.revenue, machine.split).toFixed(2)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-600">Partner</p>
-                            <p className="font-medium">{machine.partner}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-600">Split</p>
-                            <p className="font-medium">{machine.split}% partner / {100 - machine.split}% you</p>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            machine.status === 'active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : machine.status === 'maintenance'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {machine.status}
-                          </span>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => startRecordSale(machine)}
+                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                          >
+                            Record Sale
+                          </button>
+                          <button 
+                            onClick={() => startEdit(machine)}
+                            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(machine)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -719,16 +430,13 @@ export default function VendiPro() {
                               {transaction.machines?.location || 'Unknown Machine'}
                             </div>
                             <div className="text-sm text-gray-600">
-                              {new Date(transaction.date).toLocaleDateString()} • {transaction.type}
+                              {new Date(transaction.date).toLocaleDateString()}
                               {transaction.description && ` • ${transaction.description}`}
                             </div>
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-green-600">
                               ${transaction.amount.toFixed(2)}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              {new Date(transaction.created_at).toLocaleTimeString()}
                             </div>
                           </div>
                         </div>
@@ -738,7 +446,7 @@ export default function VendiPro() {
                 ) : (
                   <div className="bg-gray-50 p-8 rounded-lg text-center">
                     <h3 className="text-lg font-medium text-gray-800 mb-2">No Sales Recorded Yet</h3>
-                    <p className="text-gray-600">Start recording sales from the Machines tab to see transaction history here.</p>
+                    <p className="text-gray-600">Start recording sales from the Machines tab.</p>
                   </div>
                 )}
               </div>
