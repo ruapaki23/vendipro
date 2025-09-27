@@ -58,6 +58,7 @@ export default function Home() {
   const [recordingSale, setRecordingSale] = useState<number | null>(null)
   const [showEmployeeForm, setShowEmployeeForm] = useState(false)
   const [showExpenseForm, setShowExpenseForm] = useState(false)
+  const [showMachineForm, setShowMachineForm] = useState(false)
   
   const [newMachine, setNewMachine] = useState({
     location: '',
@@ -158,6 +159,10 @@ export default function Home() {
 
   const addMachine = async () => {
     try {
+      if (!newMachine.location.trim() || !newMachine.code.trim() || !newMachine.partner.trim()) {
+  alert('Location, Code, and Partner are required')
+  return
+}
       const { error } = await supabase
         .from('machines')
         .insert([{ ...newMachine, revenue: 0 }])
@@ -447,56 +452,60 @@ export default function Home() {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold">Machine Management</h2>
                   <button 
-                    onClick={addMachine}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+onClick={() => setShowMachineForm(!showMachineForm)}                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                   >
-                    Add New Machine
-                  </button>
+{showMachineForm ? 'Cancel' : 'Add New Machine'}                  </button>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                  <h3 className="font-medium mb-3">Add New Machine</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Location"
-                      value={newMachine.location}
-                      onChange={(e) => setNewMachine({...newMachine, location: e.target.value})}
-                      className="border rounded px-3 py-2"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Code"
-                      value={newMachine.code}
-                      onChange={(e) => setNewMachine({...newMachine, code: e.target.value})}
-                      className="border rounded px-3 py-2"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Partner"
-                      value={newMachine.partner}
-                      onChange={(e) => setNewMachine({...newMachine, partner: e.target.value})}
-                      className="border rounded px-3 py-2"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Partner %"
-                      value={newMachine.split}
-                      onChange={(e) => setNewMachine({...newMachine, split: parseInt(e.target.value)})}
-                      className="border rounded px-3 py-2"
-                    />
-                    <select
-                      value={newMachine.status}
-                      onChange={(e) => setNewMachine({...newMachine, status: e.target.value})}
-                      className="border rounded px-3 py-2"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="maintenance">Maintenance</option>
-                    </select>
-                  </div>
-                </div>
-
+{showMachineForm && (
+  <div className="bg-gray-50 p-4 rounded-lg mb-6">
+    <h3 className="font-medium mb-3">Add New Machine</h3>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+      <input
+        type="text"
+        placeholder="Location"
+        value={newMachine.location}
+        onChange={(e) => setNewMachine({...newMachine, location: e.target.value})}
+        className="border rounded px-3 py-2"
+      />
+      <input
+        type="text"
+        placeholder="Code"
+        value={newMachine.code}
+        onChange={(e) => setNewMachine({...newMachine, code: e.target.value})}
+        className="border rounded px-3 py-2"
+      />
+      <input
+        type="text"
+        placeholder="Partner"
+        value={newMachine.partner}
+        onChange={(e) => setNewMachine({...newMachine, partner: e.target.value})}
+        className="border rounded px-3 py-2"
+      />
+      <input
+        type="number"
+placeholder="Partner % (0-100)"        value={newMachine.split}
+        onChange={(e) => setNewMachine({...newMachine, split: parseInt(e.target.value)})}
+        className="border rounded px-3 py-2"
+      />
+      <select
+        value={newMachine.status}
+        onChange={(e) => setNewMachine({...newMachine, status: e.target.value})}
+        className="border rounded px-3 py-2"
+      >
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="maintenance">Maintenance</option>
+      </select>
+    </div>
+    <button 
+      onClick={addMachine}
+      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 mt-3"
+    >
+      Save Machine
+    </button>
+  </div>
+)}
                 <div className="space-y-4">
                   {machines.map(machine => (
                     <div key={machine.id} className="border rounded-lg">
