@@ -465,8 +465,7 @@ onClick={() => setShowMachineForm(!showMachineForm)}                    classNam
   <label>Location</label>
   <label>Code</label>
   <label>Partner</label>
-  <label>Split %</label>
-  <label>Status</label>
+<label>My Share / Partner Share</label>  <label>Status</label>
 </div>    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
       <input
         type="text"
@@ -654,8 +653,7 @@ value={editingMachineData.partner !== undefined ? editingMachineData.partner : m
                           </div>
                           <div>
                             <p className="text-sm text-gray-600">Revenue Split</p>
-                            <p className="font-medium">{machine.split}% / {100 - machine.split}%</p>
-                          </div>
+<p className="font-medium">{100 - machine.split}% / {machine.split}%</p>                          </div>
                         </div>
 
                         <div className="flex gap-2">
