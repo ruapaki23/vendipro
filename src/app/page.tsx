@@ -172,6 +172,10 @@ export default function Home() {
 
   const updateMachine = async (id: number, updates: Partial<Machine>) => {
     try {
+      if (!updates.location?.trim() || !updates.code?.trim() || !updates.partner?.trim()) {
+  alert('Location, Code, and Partner are required')
+  return
+}
       const { error } = await supabase
         .from('machines')
         .update(updates)
@@ -502,7 +506,7 @@ export default function Home() {
     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
       <input
         type="text"
-        value={editingMachineData.location || machine.location}
+        value={editingMachineData.location !== undefined ? editingMachineData.location : machine.location}
         onChange={(e) => setEditingMachineData({...editingMachineData, location: e.target.value})}
         className="border rounded px-3 py-2"
       />
