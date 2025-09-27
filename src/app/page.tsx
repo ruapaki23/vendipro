@@ -660,8 +660,16 @@ value={editingMachineData.partner !== undefined ? editingMachineData.partner : m
 
                         <div className="flex gap-2">
                           <button
-                            onClick={() => setEditingMachine(machine.id)}
-                            className="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200"
+onClick={() => {
+  setEditingMachine(machine.id)
+  setEditingMachineData({
+    location: machine.location,
+    code: machine.code,
+    partner: machine.partner,
+    split: machine.split,
+    status: machine.status
+  })
+}}                            className="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200"
                           >
                             Edit
                           </button>
@@ -815,12 +823,19 @@ value={editingMachineData.partner !== undefined ? editingMachineData.partner : m
                         <label className="text-sm text-gray-600">Recurring expense</label>
                       </div>
                     </div>
-                    <button 
-                      onClick={addExpense}
-                      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                    >
-                      Save Expense
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={addExpense}
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                      >
+                        Save Expense
+                      </button>
+                      <button 
+                        onClick={() => setShowExpenseForm(false)}
+className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
 
