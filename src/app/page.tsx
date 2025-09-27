@@ -512,14 +512,13 @@ export default function Home() {
       />
       <input
         type="text"
-        value={editingMachineData.code || machine.code}
+value={editingMachineData.code !== undefined ? editingMachineData.code : machine.code}
         onChange={(e) => setEditingMachineData({...editingMachineData, code: e.target.value})}
         className="border rounded px-3 py-2"
       />
       <input
         type="text"
-        value={editingMachineData.partner || machine.partner}
-        onChange={(e) => setEditingMachineData({...editingMachineData, partner: e.target.value})}
+value={editingMachineData.partner !== undefined ? editingMachineData.partner : machine.partner}        onChange={(e) => setEditingMachineData({...editingMachineData, partner: e.target.value})}
         className="border rounded px-3 py-2"
       />
       <input
