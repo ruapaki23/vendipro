@@ -296,7 +296,8 @@ export default function Home() {
         description: newExpense.description,
         amount: parseFloat(newExpense.amount),
         date: newExpense.date,
-        recurring: newExpense.recurring
+        recurring: newExpense.recurring,
+        created_at: new Date().toISOString()
       }
 
       const { error } = await supabase
@@ -460,7 +461,13 @@ onClick={() => setShowMachineForm(!showMachineForm)}                    classNam
 {showMachineForm && (
   <div className="bg-gray-50 p-4 rounded-lg mb-6">
     <h3 className="font-medium mb-3">Add New Machine</h3>
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+<div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-2 text-sm font-medium text-gray-700">
+  <label>Location</label>
+  <label>Code</label>
+  <label>Partner</label>
+  <label>Split %</label>
+  <label>Status</label>
+</div>    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
       <input
         type="text"
         placeholder="Location"
