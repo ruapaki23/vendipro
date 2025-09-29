@@ -1,17 +1,17 @@
-# VendiPro Pull Request Template
+# Pull Request
 
-## 🔎 Oversight Review (Claude / GPT)
-- [ ] Roadmap alignment confirmed
-- [ ] Architecture sanity check done
-- [ ] Dependencies/config reviewed
-- [ ] Security/auth/data model sound
-- [ ] Workflow pacing OK (ADHD-friendly)
+## Description
+<!-- What does this PR do? A clear and concise description. -->
 
-## 📝 Summary
-<!-- What does this PR introduce/change? -->
+## Changes
+- [ ] Code updates
+- [ ] Documentation updates
+- [ ] Config updates
 
-## ✅ Test Plan
-<!-- How did you test this change? -->
+## Checklist
+- [ ] I have run the app locally and tested my changes
+- [ ] I have updated `.md/CHECKPOINTS.md` if this PR reaches a new checkpoint
+- [ ] I have pushed all changes to GitHub
 
-## 🚧 Next Steps
-<!-- What’s still pending (if anything)? -->
+## Related Issues
+<!-- Link any related issues or tickets here -->
